@@ -1,0 +1,164 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class StockTradingPlatform {
+
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final HashMap<String, Double> stockPrices = new HashMap<>();
+    private static final HashMap<String, Integer> userPortfolio = new HashMap<>();
+
+    public static void main(String[] args) {
+        while (true) {
+            System.out.println("\nStock Trading Platform");
+            System.out.println("1. Add Stock");
+            System.out.println("2. Buy Stock");
+            System.out.println("3. Sell Stock");
+            System.out.println("4. View Portfolio");
+            System.out.println("5. View Stock Prices");
+            System.out.println("6. Exit");
+            System.out.print("Choose an option: ");
+
+            int choice = getIntInput();
+
+            switch (choice) {
+                case 1:
+                    addStock();
+                    break;
+                case 2:
+                    buyStock();
+                    break;
+                case 3:
+                    sellStock();
+                    break;
+                case 4:
+                    viewPortfolio();
+                    break;
+                case 5:
+                    viewStockPrices();
+                    break;
+                case 6:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+
+    private static void addStock() {
+        System.out.print("Enter stock name: ");
+        String stockName = scanner.nextLine();
+
+        System.out.print("Enter stock price: ");
+        double stockPrice = getDoubleInput();
+
+        stockPrices.put(stockName, stockPrice);
+        System.out.println("Stock " + stockName + " added with price $" + stockPrice);
+    }
+
+    private static void buyStock() {
+        System.out.print("Enter stock name to buy: ");
+        String stockName = scanner.nextLine();
+
+        if (!stockPrices.containsKey(stockName)) {
+            System.out.println("Stock not found.");
+            return;
+        }
+
+        System.out.print("Enter quantity to buy: ");
+        int quantity = getIntInput();
+
+        if (quantity <= 0) {
+            System.out.println("Quantity must be greater than zero.");
+            return;
+        }
+
+        userPortfolio.put(stockName, userPortfolio.getOrDefault(stockName, 0) + quantity);
+        System.out.println("Bought " + quantity + " shares of " + stockName);
+    }
+
+    private static void sellStock() {
+        System.out.print("Enter stock name to sell: ");
+        String stockName = scanner.nextLine();
+
+        if (!userPortfolio.containsKey(stockName)) {
+            System.out.println("You do not own any shares of " + stockName);
+            return;
+        }
+
+        System.out.print("Enter quantity to sell: ");
+        int quantity = getIntInput();
+
+        int ownedQuantity = userPortfolio.get(stockName);
+        if (quantity > ownedQuantity) {
+            System.out.println("You do not have enough shares to sell.");
+            return;
+        }
+
+        if (quantity <= 0) {
+            System.out.println("Quantity must be greater than zero.");
+            return;
+        }
+
+        if (quantity == ownedQuantity) {
+            userPortfolio.remove(stockName);
+        } else {
+            userPortfolio.put(stockName, ownedQuantity - quantity);
+        }
+
+        System.out.println("Sold " + quantity + " shares of " + stockName);
+    }
+
+    private static void viewPortfolio() {
+        if (userPortfolio.isEmpty()) {
+            System.out.println("Your portfolio is empty.");
+            return;
+        }
+
+        System.out.println("Your Portfolio:");
+        for (Map.Entry<String, Integer> entry : userPortfolio.entrySet()) {
+            String stockName = entry.getKey();
+            int quantity = entry.getValue();
+            double price = stockPrices.get(stockName);
+            double value = price * quantity;
+            System.out.printf("Stock: %s | Quantity: %d | Current Price: $%.2f | Total Value: $%.2f%n",
+                    stockName, quantity, price, value);
+        }
+    }
+
+    private static void viewStockPrices() {
+        if (stockPrices.isEmpty()) {
+            System.out.println("No stocks available.");
+            return;
+        }
+
+        System.out.println("Stock Prices:");
+        for (Map.Entry<String, Double> entry : stockPrices.entrySet()) {
+            String stockName = entry.getKey();
+            double price = entry.getValue();
+            System.out.printf("Stock: %s | Current Price: $%.2f%n", stockName, price);
+        }
+    }
+
+    private static int getIntInput() {
+        while (true) {
+            try {
+                return Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+    }
+
+    private static double getDoubleInput() {
+        while (true) {
+            try {
+                return Double.parseDouble(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a numerical value.");
+            }
+        }
+    }
+}
