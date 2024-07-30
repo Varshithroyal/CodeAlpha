@@ -1,0 +1,152 @@
+import java.util.Scanner;
+
+public class BasicStudentGradeTracker {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Arrays to store student names and grades
+        final int MAX_STUDENTS = 10;
+        String[] studentNames = new String[MAX_STUDENTS];
+        double[][] studentGrades = new double[MAX_STUDENTS][];
+        int studentCount = 0;
+
+        // Main loop to interact with the user
+        while (true) {
+            System.out.println("\nStudent Grade Tracker");
+            System.out.println("1. Add Student and Grades");
+            System.out.println("2. View Student Grades");
+            System.out.println("3. Compute Average, Highest, and Lowest Scores");
+            System.out.println("4. Exit");
+            System.out.print("Choose an option: ");
+
+            int choice = getIntInput(scanner);
+
+            switch (choice) {
+                case 1:
+                    if (studentCount < MAX_STUDENTS) {
+                        addStudentGrades(scanner, studentNames, studentGrades, studentCount);
+                        studentCount++;
+                    } else {
+                        System.out.println("Maximum number of students reached.");
+                    }
+                    break;
+                case 2:
+                    viewStudentGrades(studentNames, studentGrades, studentCount);
+                    break;
+                case 3:
+                    computeStatistics(studentNames, studentGrades, studentCount);
+                    break;
+                case 4:
+                    System.out.println("Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+    }
+
+    private static void addStudentGrades(Scanner scanner, String[] studentNames, double[][] studentGrades, int index) {
+        System.out.print("Enter student name: ");
+        studentNames[index] = scanner.nextLine();
+
+        System.out.println("Enter grades (type 'done' when finished):");
+        double[] grades = new double[10]; // Arbitrary size for simplicity
+        int gradeCount = 0;
+
+        while (true) {
+            System.out.print("Enter grade: ");
+            String input = scanner.nextLine();
+
+            if (input.equalsIgnoreCase("done")) {
+                break;
+            }
+
+            try {
+                double grade = Double.parseDouble(input);
+                if (grade < 0 || grade > 100) {
+                    System.out.println("Grade must be between 0 and 100. Please enter again.");
+                } else {
+                    grades[gradeCount++] = grade;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a numerical value.");
+            }
+        }
+
+        studentGrades[index] = new double[gradeCount];
+        System.arraycopy(grades, 0, studentGrades[index], 0, gradeCount);
+    }
+
+    private static void viewStudentGrades(String[] studentNames, double[][] studentGrades, int studentCount) {
+        if (studentCount == 0) {
+            System.out.println("No student data available.");
+            return;
+        }
+
+        for (int i = 0; i < studentCount; i++) {
+            System.out.println("\nStudent: " + studentNames[i]);
+            System.out.print("Grades: ");
+            for (double grade : studentGrades[i]) {
+                System.out.print(grade + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    private static void computeStatistics(String[] studentNames, double[][] studentGrades, int studentCount) {
+        if (studentCount == 0) {
+            System.out.println("No student data available.");
+            return;
+        }
+
+        System.out.print("Enter student name to compute statistics: ");
+        Scanner scanner = new Scanner(System.in);
+        String name = scanner.nextLine();
+
+        for (int i = 0; i < studentCount; i++) {
+            if (studentNames[i].equalsIgnoreCase(name)) {
+                double[] grades = studentGrades[i];
+                if (grades.length == 0) {
+                    System.out.println("No grades available for student " + name + ".");
+                    return;
+                }
+
+                double sum = 0;
+                double highest = grades[0];
+                double lowest = grades[0];
+
+                for (double grade : grades) {
+                    sum += grade;
+                    if (grade > highest) {
+                        highest = grade;
+                    }
+                    if (grade < lowest) {
+                        lowest = grade;
+                    }
+                }
+
+                double average = sum / grades.length;
+
+                System.out.println("\nStatistics for " + name + ":");
+                System.out.println("Average Score: " + average);
+                System.out.println("Highest Score: " + highest);
+                System.out.println("Lowest Score: " + lowest);
+                return;
+            }
+        }
+
+        System.out.println("No grades found for student " + name + ".");
+    }
+
+    private static int getIntInput(Scanner scanner) {
+        while (true) {
+            try {
+                return Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number.");
+            }
+        }
+    }
+}
